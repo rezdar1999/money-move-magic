@@ -24,13 +24,30 @@ interface TransactionContextType {
 const TransactionContext = createContext<TransactionContextType | null>(null);
 
 export function TransactionProvider({ children }: { children: ReactNode }) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [lastCode, setLastCode] = useState(1000);
+  // تحميل المعاملات من localStorage عند بدء التطبيق
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const savedTransactions = localStorage.getItem('transactions');
+    return savedTransactions ? JSON.parse(savedTransactions) : [];
+  });
+
+  // تحميل آخر كود من localStorage
+  const [lastCode, setLastCode] = useState(() => {
+    const savedLastCode = localStorage.getItem('lastCode');
+    return savedLastCode ? parseInt(savedLastCode) : 1000;
+  });
 
   const addTransaction = (transaction: Omit<Transaction, 'code' | 'received'>) => {
     const newCode = lastCode + 1;
+    const newTransaction = { ...transaction, code: newCode, received: false };
+    
+    const newTransactions = [...transactions, newTransaction];
+    setTransactions(newTransactions);
     setLastCode(newCode);
-    setTransactions([...transactions, { ...transaction, code: newCode, received: false }]);
+    
+    // حفظ في localStorage
+    localStorage.setItem('transactions', JSON.stringify(newTransactions));
+    localStorage.setItem('lastCode', newCode.toString());
+    
     toast.success('تم إضافة الحوالة بنجاح');
   };
 
@@ -39,9 +56,14 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   };
 
   const markAsReceived = (code: number) => {
-    setTransactions(transactions.map(t => 
+    const newTransactions = transactions.map(t => 
       t.code === code ? { ...t, received: true, receivedAt: new Date() } : t
-    ));
+    );
+    
+    setTransactions(newTransactions);
+    // حفظ في localStorage
+    localStorage.setItem('transactions', JSON.stringify(newTransactions));
+    
     toast.success('تم استلام الحوالة بنجاح');
   };
 
