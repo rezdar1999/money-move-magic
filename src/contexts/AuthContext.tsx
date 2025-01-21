@@ -6,8 +6,14 @@ interface User {
   username: string;
 }
 
+interface UserWithPassword {
+  username: string;
+  password: string;
+}
+
 interface AuthContextType {
   user: User | null;
+  users: UserWithPassword[];
   login: (username: string, password: string) => void;
   logout: () => void;
   addUser: (username: string, password: string) => void;
@@ -26,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return savedUser ? JSON.parse(savedUser) : null;
   });
   
-  const [users, setUsers] = useState(() => {
+  const [users, setUsers] = useState<UserWithPassword[]>(() => {
     const savedUsers = localStorage.getItem('users');
     return savedUsers ? JSON.parse(savedUsers) : defaultUsers;
   });
@@ -79,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, addUser, removeUser }}>
+    <AuthContext.Provider value={{ user, users, login, logout, addUser, removeUser }}>
       {children}
     </AuthContext.Provider>
   );

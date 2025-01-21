@@ -7,34 +7,41 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Code } from 'lucide-react';
 
+interface TransactionData {
+  code: number;
+  senderName: string;
+  senderPhone: string;
+  receiverName: string;
+  receiverPhone: string;
+  destination: string;
+  amount: number;
+  commissionPaid: boolean;
+}
+
 export default function Send() {
   const { addTransaction } = useTransactions();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TransactionData>({
+    code: Math.floor(Math.random() * 900000) + 100000,
     senderName: '',
     senderPhone: '',
     receiverName: '',
     receiverPhone: '',
     destination: '',
-    amount: '',
+    amount: 0,
     commissionPaid: false
   });
-  const [lastCode, setLastCode] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const transaction = {
-      ...formData,
-      amount: Number(formData.amount)
-    };
-    addTransaction(transaction);
-    setLastCode(transaction.code);
+    addTransaction(formData);
     setFormData({
+      code: Math.floor(Math.random() * 900000) + 100000,
       senderName: '',
       senderPhone: '',
       receiverName: '',
       receiverPhone: '',
       destination: '',
-      amount: '',
+      amount: 0,
       commissionPaid: false
     });
   };
@@ -43,12 +50,10 @@ export default function Send() {
     <Card className="max-w-2xl mx-auto mt-8">
       <CardHeader>
         <CardTitle className="text-center text-2xl font-bold text-primary">إرسال حوالة جديدة</CardTitle>
-        {lastCode && (
-          <div className="flex items-center justify-center gap-2 mt-2 p-2 bg-primary/10 rounded-md">
-            <Code className="h-5 w-5 text-primary" />
-            <span className="text-lg font-semibold">رقم الحوالة: {lastCode}</span>
-          </div>
-        )}
+        <div className="flex items-center justify-center gap-2 mt-2 p-2 bg-primary/10 rounded-md">
+          <Code className="h-5 w-5 text-primary" />
+          <span className="text-lg font-semibold">رقم الحوالة: {formData.code}</span>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,7 +110,7 @@ export default function Send() {
               required
               type="number"
               value={formData.amount}
-              onChange={(e) => setFormData({...formData, amount: e.target.value})}
+              onChange={(e) => setFormData({...formData, amount: Number(e.target.value)})}
               className="text-right"
             />
           </div>
