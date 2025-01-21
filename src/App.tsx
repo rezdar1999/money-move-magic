@@ -20,7 +20,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navigation />
-      {children}
+      <div className="pt-16">
+        {children}
+      </div>
     </>
   );
 }
@@ -56,15 +58,17 @@ function AppRoutes() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <TransactionProvider>
-            <AppRoutes />
-          </TransactionProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <TransactionProvider>
+              <AppRoutes />
+            </TransactionProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </div>
     </TooltipProvider>
   </QueryClientProvider>
 );

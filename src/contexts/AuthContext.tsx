@@ -21,8 +21,16 @@ const defaultUsers = [
 ];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [users, setUsers] = useState(defaultUsers);
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  
+  const [users, setUsers] = useState(() => {
+    const savedUsers = localStorage.getItem('users');
+    return savedUsers ? JSON.parse(savedUsers) : defaultUsers;
+  });
+  
   const navigate = useNavigate();
 
   const login = (username: string, password: string) => {
@@ -31,7 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
     
     if (foundUser) {
-      setUser({ username: foundUser.username });
+      const userObj = { username: foundUser.username };
+      setUser(userObj);
+      localStorage.setItem('user', JSON.stringify(userObj));
       navigate('/send');
       toast.success('تم تسجيل الدخول بنجاح');
     } else {
@@ -41,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('user');
     navigate('/');
     toast.success('تم تسجيل الخروج بنجاح');
   };
@@ -50,7 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error('اسم المستخدم موجود بالفعل');
       return;
     }
-    setUsers([...users, { username, password }]);
+    const newUsers = [...users, { username, password }];
+    setUsers(newUsers);
+    localStorage.setItem('users', JSON.stringify(newUsers));
     toast.success('تم إضافة المستخدم بنجاح');
   };
 
@@ -59,7 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error('لا يمكن حذف المستخدم الرئيسي');
       return;
     }
-    setUsers(users.filter(u => u.username !== username));
+    const newUsers = users.filter(u => u.username !== username);
+    setUsers(newUsers);
+    localStorage.setItem('users', JSON.stringify(newUsers));
     toast.success('تم حذف المستخدم بنجاح');
   };
 
