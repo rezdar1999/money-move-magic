@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Code } from 'lucide-react';
 
 export default function Send() {
   const { addTransaction } = useTransactions();
@@ -17,13 +18,16 @@ export default function Send() {
     amount: '',
     commissionPaid: false
   });
+  const [lastCode, setLastCode] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addTransaction({
+    const transaction = {
       ...formData,
       amount: Number(formData.amount)
-    });
+    };
+    addTransaction(transaction);
+    setLastCode(transaction.code);
     setFormData({
       senderName: '',
       senderPhone: '',
@@ -38,7 +42,13 @@ export default function Send() {
   return (
     <Card className="max-w-2xl mx-auto mt-8">
       <CardHeader>
-        <CardTitle className="text-center">إرسال حوالة جديدة</CardTitle>
+        <CardTitle className="text-center text-2xl font-bold text-primary">إرسال حوالة جديدة</CardTitle>
+        {lastCode && (
+          <div className="flex items-center justify-center gap-2 mt-2 p-2 bg-primary/10 rounded-md">
+            <Code className="h-5 w-5 text-primary" />
+            <span className="text-lg font-semibold">رقم الحوالة: {lastCode}</span>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -106,7 +116,7 @@ export default function Send() {
               onCheckedChange={(checked) => setFormData({...formData, commissionPaid: checked})}
             />
           </div>
-          <Button type="submit" className="w-full">إرسال الحوالة</Button>
+          <Button type="submit" className="w-full bg-primary hover:bg-primary/90">إرسال الحوالة</Button>
         </form>
       </CardContent>
     </Card>
